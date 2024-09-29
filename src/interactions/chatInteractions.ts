@@ -11,7 +11,6 @@ import getCollection from "../handlers/getCollection";
 import { baseEmbedGen, selectMenuGen } from "../utils/generators";
 import { AlertType, CommandType } from "../utils/types";
 import constants from "../utils/constants";
-
 /**
  * Handle to discord chat interaction
  * @param {ChatInputCommandInteraction<CacheType>} interaction discord chat interaction
@@ -19,13 +18,18 @@ import constants from "../utils/constants";
 export default async function replyChatInteraction(
   interaction: ChatInputCommandInteraction<CacheType>
 ) {
+  
   try {
     switch (interaction.commandName) {
       case CommandType.collection: {
         try {
           // Get collection name and number of items to search for
           const { value: name } = interaction.options.get("name", true);
-          const limit = interaction.options.get("limit", false)?.value;
+          const limitOption = interaction.options.get("limit", false)?.value;
+
+          // Ensure limit is a number or undefined
+          const limit: number | undefined =
+            typeof limitOption === "number" ? limitOption : undefined;
 
           // Log failure + throw if no collection name was received
           if (typeof name !== "string") {

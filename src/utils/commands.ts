@@ -20,15 +20,15 @@ export default async function commandBuilder(
         description: "Search for NFT Collections using an identifying name",
         options: [
           {
-            "name": "name",
-            "description": "Search for collections that match a string",
-            "type": 3,
-            "required": true,
+            name: "name",
+            description: "Search for collections that match a string",
+            type: 3,
+            required: true,
           },
           {
-            "name": "limit",
-            "description": "Number of items returned (max: 20)",
-            "type": 4,
+            name: "limit",
+            description: "Number of items returned (max: 20)",
+            type: 4,
           },
         ],
       },
@@ -39,26 +39,26 @@ export default async function commandBuilder(
         default_member_permission: "0",
         options: [
           {
-            "name": "name",
-            "description": "alert to disable",
-            "type": 3,
-            "required": true,
-            "choices": [
+            name: "name",
+            description: "alert to disable",
+            type: 3,
+            required: true,
+            choices: [
               {
-                "name": AlertType.listings,
-                "value": AlertType.listings,
+                name: AlertType.listings,
+                value: AlertType.listings,
               },
               {
-                "name": AlertType.sales,
-                "value": AlertType.sales,
+                name: AlertType.sales,
+                value: AlertType.sales,
               },
               {
-                "name": AlertType.floor,
-                "value": AlertType.floor,
+                name: AlertType.floor,
+                value: AlertType.floor,
               },
               {
-                "name": AlertType.bid,
-                "value": AlertType.bid,
+                name: AlertType.bid,
+                value: AlertType.bid,
               },
             ],
           },
@@ -71,26 +71,26 @@ export default async function commandBuilder(
         default_member_permission: "0",
         options: [
           {
-            "name": "name",
-            "description": "alert to enable",
-            "type": 3,
-            "required": true,
-            "choices": [
+            name: "name",
+            description: "alert to enable",
+            type: 3,
+            required: true,
+            choices: [
               {
-                "name": AlertType.listings,
-                "value": AlertType.listings,
+                name: AlertType.listings,
+                value: AlertType.listings,
               },
               {
-                "name": AlertType.sales,
-                "value": AlertType.sales,
+                name: AlertType.sales,
+                value: AlertType.sales,
               },
               {
-                "name": AlertType.floor,
-                "value": AlertType.floor,
+                name: AlertType.floor,
+                value: AlertType.floor,
               },
               {
-                "name": AlertType.bid,
-                "value": AlertType.bid,
+                name: AlertType.bid,
+                value: AlertType.bid,
               },
             ],
           },
@@ -99,7 +99,7 @@ export default async function commandBuilder(
       {
         name: "listalerts",
         type: 1,
-        description: "list all alert",
+        description: "List all alerts",
         default_member_permission: "0",
       },
     ];
@@ -110,7 +110,7 @@ export default async function commandBuilder(
     // Discord api headers
     const headers = {
       "Content-Type": "application/json",
-      "Authorization": `Bot ${TOKEN}`,
+      Authorization: `Bot ${TOKEN}`,
     };
 
     // Add commands to Discord bot

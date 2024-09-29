@@ -5,55 +5,82 @@ import logger from "../utils/logger";
 
 /**
  * Retrieve collection data from Reservoir
- * @param {string} name collection name to search for
- * @param {string} contractAddress collection address to search
- * @param {number} limit number of collections to return
+ * @param {string | string[]} name collection name or array of names to search for
+ * @param {string | string[]} contractAddress collection address or array of addresses to search
+ * @param {number} limit number of collections to return per request
  * @param {boolean} includeTopBid whether to include top bid info or not
  * @returns array of collection info
  */
 export default async function getCollection(
-  name?: string,
-  contractAddress?: string,
-  limit?: number | string | boolean,
+  name?: string | string[],
+  contractAddress?: string | string[],
+  limit: number = 5,
   includeTopBid: boolean = false
 ): Promise<
   paths["/collections/v5"]["get"]["responses"]["200"]["schema"]["collections"]
 > {
-  // Log failure + throw if function not passed name or contract address
+  // Log failure + throw if neither name nor contract address are provided
   if (!name && !contractAddress) {
-    throw new Error();
+    throw new Error("Either name or contract address must be provided.");
   }
 
-  // If limit param isn't passed default to 5
-  limit = typeof limit !== "number" ? 5 : limit;
-
-  // Set limit to the bounds of 1 <= limit <= 20
+  // Normalize limit to bounds of 1 <= limit <= 20
   limit = Math.min(Math.max(limit, 1), 20);
 
-  // Prioritize contractAddress if provided, else fallback to name
-  const selector = contractAddress ? { id: contractAddress } : { name: name };
+  // If the inputs are not arrays, convert them to arrays to handle multiple values
+  const nameArray = Array.isArray(name) ? name : name ? [name] : [];
+  const addressArray = Array.isArray(contractAddress)
+    ? contractAddress
+    : contractAddress
+    ? [contractAddress]
+    : [];
 
   try {
     dotenv.config();
     // Authorizing with Reservoir API Key
     await sdk.auth(process.env.RESERVOIR_API_KEY);
 
-    // Pull collection data from Reservoir
-    const searchDataResponse: paths["/collections/v5"]["get"]["responses"]["200"]["schema"] =
-      await sdk.getCollectionsV5({
-        ...selector,
-        includeTopBid: includeTopBid,
-        sortBy: "allTimeVolume",
-        limit: limit,
-        accept: "*/*",
-      });
+    const collections: paths["/collections/v5"]["get"]["responses"]["200"]["schema"]["collections"] = [];
 
-    // Return array of collections
-    return searchDataResponse.collections;
+    // Process each name or contract address
+    for (const contract of addressArray) {
+      const response: paths["/collections/v5"]["get"]["responses"]["200"]["schema"] =
+        await sdk.getCollectionsV5({
+          id: contract,
+          includeTopBid,
+          sortBy: "allTimeVolume",
+          limit,
+          accept: "*/*",
+        });
+
+      // Safely push the collections if they exist, defaulting to an empty array
+      collections.push(...(response.collections ?? []));
+    }
+
+    for (const collectionName of nameArray) {
+      const response: paths["/collections/v5"]["get"]["responses"]["200"]["schema"] =
+        await sdk.getCollectionsV5({
+          name: collectionName,
+          includeTopBid,
+          sortBy: "allTimeVolume",
+          limit,
+          accept: "*/*",
+        });
+
+      // Safely push the collections if they exist, defaulting to an empty array
+      collections.push(...(response.collections ?? []));
+    }
+
+    // Return the consolidated array of collections
+    return collections;
   } catch (e) {
     // Log failure + throw on error
     logger.error(
-      `Failed to pull collection data for name=${name}, contractAddress=${contractAddress}, limit=${limit}, includeTopBid=${includeTopBid}`
+      `Failed to pull collection data for name=${JSON.stringify(
+        name
+      )}, contractAddress=${JSON.stringify(
+        contractAddress
+      )}, limit=${limit}, includeTopBid=${includeTopBid}`
     );
     throw new Error("Failed to pull collection data");
   }
